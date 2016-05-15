@@ -97,3 +97,9 @@ Development for Computational Science, February 2016)*.
 applying stochastic methods to a variety of applications
 *(for Harvard AM207: Stochastic Methods for Data Analysis, Inference, and
   Optimization, January-April 2016)*.
+
+### terror
+(**Python, pandas**) Using Pandas to clean country data from multiple sources
+to construct a data analysis for further analysis in a final project
+*(for Harvard STAT139: Statistical Sleuthing using Linear Models,
+  November 2015)*.
