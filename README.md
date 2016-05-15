@@ -29,6 +29,21 @@ in which we placed first
 *(for Harvard STAT149: Statistical Sleuthing through Generalized Linear
   Models, May 2016)*.
 
+### monkey
+(**Python**) We built an autonomous agent that used reinforcement learning
+(e.g. Q-learning) techniques to learn to play an arcade-style game.
+*(for Harvard CS181: Machine Learning, April 2016)*.
+  
+### music
+(**Python, scikitlearn**) We used machine learning methods to predict the
+number of times different users will listen to tracks by different artists
+over a given time horizon. Our analysis was based
+on: basic demographic attributes that were provided for most of the 233K users, attributes for the
+2K artists that were scraped from MusicBrainz and Wikipedia, and a
+training set of the historical
+number of plays of 4.1M user-artist pairs.
+*(for Harvard CS181: Machine Learning, March 2016)*.
+
 ### virus
 (**Python, scikitlearn**) We used machine learning methods to identify classes
 of malware (or the lack of malware) in executable files. Our analysis was based
