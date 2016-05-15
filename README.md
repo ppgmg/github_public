@@ -29,6 +29,16 @@ in which we placed first
 *(for Harvard STAT149: Statistical Sleuthing through Generalized Linear
   Models, May 2016)*.
 
+### virus
+(**Python, scikitlearn**) We used machine learning methods to identify classes
+of malware (or the lack of malware) in executable files. Our analysis was based
+on XML logs of the executables’ execution histories, which we parsed in order
+to create features associated with particular malware classes. Predictive
+performance was judged through an in-class
+[Kaggle competition] (https://inclass.kaggle.com/c/cs181-s16-classifying-malicious-software)
+in which we placed fifth
+*(for Harvard CS181: Machine Learning, March 2016)*.
+
 ### smiles
 (**Python, R**) We built linear regression and random forest models to
 predict the potential
