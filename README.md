@@ -34,6 +34,13 @@ in which we placed first
 (e.g. Q-learning) techniques to learn to play an arcade-style game.
 *(for Harvard CS181: Machine Learning, April 2016)*.
 
+### topics
+(**Python**) As a short exercise in exploring topic modeling, we
+implemented Latent Dirichlet Allocation to determine the topic of a set of
+documents based on analysis of their words. The dataset included over
+5 million document-word count pairings.
+*(for Harvard CS181: Machine Learning, February 2016)*.
+
 ### music
 (**Python, scikitlearn**) We used machine learning methods to predict the
 number of times different users will listen to tracks by different artists
