@@ -33,7 +33,7 @@ in which we placed first
 (**Python**) We built an autonomous agent that used reinforcement learning
 (e.g. Q-learning) techniques to learn to play an arcade-style game.
 *(for Harvard CS181: Machine Learning, April 2016)*.
-  
+
 ### music
 (**Python, scikitlearn**) We used machine learning methods to predict the
 number of times different users will listen to tracks by different artists
@@ -62,6 +62,12 @@ based on molecular structures encoded in the form of SMILES strings.
 Predictive performance was judged through an in-class
 [Kaggle competition] (https://inclass.kaggle.com/c/cs181-s16-practical-1-predicting-the-efficiency-of-photovoltaic-molecules)
 in which we placed fifth
+*(for Harvard CS181: Machine Learning, February 2016)*.
+
+### digits
+(**Python**) As a short exercise in exploring clustering algorithms, we
+implemented the K-means algorithm from scratch to group similar images of
+handwritten digits from the MNIST dataset
 *(for Harvard CS181: Machine Learning, February 2016)*.
 
 ### bloom
