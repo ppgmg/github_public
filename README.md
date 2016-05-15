@@ -28,3 +28,8 @@ performance was judged through an in-class
 in which we placed first
 *(for Harvard STAT149: Statistical Sleuthing through Generalized Linear
   Models, May 2016)*.
+
+### bloom
+(**C**) As a short exercise in exploring hashing methodologies, we
+implemented a Bloom filter in C *(for Harvard CS207: Systems
+Development for Computational Science, February 2016)*.
