@@ -13,7 +13,7 @@ Development for Computational Science, May 2016)*.
 ### mastermind
 (**Python**) I implemented several algorithms for solving high-dimensional versions
 of the classic game, MasterMind, including exhaustive search algorithms and a
-local optimization algorithm (simulated annealing). Also created a [video
+local optimization algorithm (simulated annealing). I also created a [video
 presentation](https://youtu.be/9VpXru8dRGA) for the
 [project](https://github.com/dominedo/am207project)
 *(for Harvard AM207: Stochastic Methods for Data Analysis, Inference, and
@@ -35,11 +35,21 @@ in which we placed first
 *(for Harvard CS181: Machine Learning, April 2016)*.
 
 ### topics
-(**Python**) As a short exercise in exploring topic modeling, we
+(**Python**) As a short exercise in exploring topic modeling, I
 implemented Latent Dirichlet Allocation to determine the topic of a set of
 documents based on analysis of their words. The dataset included over
 5 million document-word count pairings.
-*(for Harvard CS181: Machine Learning, February 2016)*.
+*(for Harvard CS181: Machine Learning, April 2016)*.
+
+### tweets
+(**Python**) I wrote code that calculates the average degree of a vertex
+in a Twitter hashtag graph for the last 60 seconds, and updates this each time
+a new tweet appears. The average degree is thus calculated over a 60-second
+sliding window. This was written in response to a
+[coding challenge](https://github.com/GeneDer/coding-challenge)
+as part of an application to the
+[Insight Data Engineering fellowship](http://insightdataengineering.com)
+program *(April 2016)*.
 
 ### music
 (**Python, scikitlearn**) We used machine learning methods to predict the
@@ -72,13 +82,13 @@ in which we placed fifth
 *(for Harvard CS181: Machine Learning, February 2016)*.
 
 ### digits
-(**Python**) As a short exercise in exploring clustering algorithms, we
+(**Python**) As a short exercise in exploring clustering algorithms, I
 implemented the K-means algorithm from scratch to group similar images of
 handwritten digits from the MNIST dataset
 *(for Harvard CS181: Machine Learning, February 2016)*.
 
 ### bloom
-(**C**) As a short exercise in exploring hashing methodologies, we
+(**C**) As a short exercise in exploring hashing methodologies, I
 implemented a Bloom filter in C *(for Harvard CS207: Systems
 Development for Computational Science, February 2016)*.
 
