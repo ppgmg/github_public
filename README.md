@@ -107,6 +107,14 @@ for the [project](https://github.com/dominedo/spark-n-spell)
 *(for Harvard CS205: Computing Foundations for Computational Science,
   December 2015)*.
 
+### STEMwomen
+(**Python, scikitlearn, Tableau**) We analyzed census microdata to investigate
+gender imbalance in college STEM studies, through the application of analytical
+and modeling techniques. We also created a
+[video presentation and website](https://stemstudy.wordpress.com)
+for the [project](https://github.com/ppgmg/stem-study)
+*(for Harvard AC209: Data Science, December 2015)*.
+
 ### particles
 (**Python, Cython**) As a short exercise in employing parallelism techniques,
 I modified code for a physics simulator and animation system, and wrote a
@@ -123,5 +131,5 @@ to construct a data analysis for further analysis in a final project
 ### spark_probs
 (**Python, Spark**) Solutions to some interesting homework exercises
 utilizing Apache Spark
-*(for Harvard CS205: Computing Foundations for Computational Science, 
+*(for Harvard CS205: Computing Foundations for Computational Science,
   October 2015)*.
