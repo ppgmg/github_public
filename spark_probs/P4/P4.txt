@@ -1,0 +1,188 @@
+P4.txt
+
+####################
+#
+# Submission by Kendrick Lo (Harvard ID: 70984997) for
+# CS 205 - Computing Foundations for Computational Science (Prof. R. Jones)
+# 
+# Homework 1 - Problem 4
+# Discussion of Results
+#
+####################
+
+####################
+
+Files included in this submission:
+
+P4.txt - this file
+P4.py - wrapper code for creating graph representation from input data
+P4_bfs.py - code implementing breadth first search on graph, given character
+
+Other files:
+
+P4_bfs.png - diagram showing data flow via RDDs for search algorithm
+
+####################
+
+Discussion re: graph representation
+
+First, we were given the flexibility to choose an appropriate graph
+representation, with the only caveat that links between nodes be symmetric.
+We decided to represent the graph using two RDDs that represent:
+
+a) a vertex table: containing a vertex ID (0-index), and character name
+b) an edge table: containing a source ID and a destination ID
+
+The source ID and destination ID represent the nodes connecting the edge
+(which can be mapped back to a character name using the vertex table). 
+Since only one edge is represented on each line of the file holding the
+edge table, this format may not be as compact compared to the use of
+adjacency lists, we chose this format partly because it may be easier
+to work with in Spark, but primarily because it is a simple format that
+is well-accepted by various graphing programs in unedited form. In particular
+we were motivated to use this from the "Graph Builders" section of the
+documentation of Apache GraphX.
+
+(http://spark.apache.org/docs/latest/graphx-programming-guide.html)
+
+For this example, we have prepared the edge table based on the assumption
+that ALL LINKS are symmetric, and thus we only store one pair of vertices
+per bi-directional edge to allow for more compact storage.
+
+Sample input (from csv file):
+"FROST, CARMILLA","AA2 35"
+"KILLRAVEN/JONATHAN R","AA2 35"
+"M'SHULLA","AA2 35"
+"24-HOUR MAN/EMMANUEL","AA2 35"
+"OLD SKULL","AA2 35"
+"G'RATH","AA2 35"
+"3-D MAN/CHARLES CHAN","M/PRM 35"
+"3-D MAN/CHARLES CHAN","M/PRM 36"
+
+Sample output (chars.txt):
+0 "PHARAOH RAMA-TUT"
+1 "GORILLA-MAN"
+2 "WASP/JANET VAN DYNE"
+3 "24-HOUR MAN/EMMANUEL"
+4 "HUMAN ROBOT"
+5 "KILLRAVEN/JONATHAN R"
+
+Sample output (edges.txt):
+13 15
+15 17
+13 16
+4 0
+14 9
+13 17
+17 8
+1 0
+7 16
+12 16 
+
+####################
+
+Note re: P4.py and P4_bfs.py
+
+We should also note that we chose to structure our code in such away to
+allow for greater portability: rather than having P4.py call P4_bfs.py and
+pass live RDDs, Spark contexts, and potentially other parameters in an
+invocation (which also typically means P4.py must be called immediately
+before P4_bfs.py and therefore they might not be easily run as separate
+progams), we decided to have P4.py create a text file as output
+corresponding to each of the vertex and edge tables, respectively. This
+allows P4_bfs.py to read the graph data at a later time. It also allows
+other applications (e.g. GraphX) to use the graph data we have generated.
+
+####################
+
+Discussion re: approach in spark coding and optimization
+
+To assist us in determining how to structure our code to pass information
+via spark RDDs, we found it useful to draw out a diagram of our structure 
+that showed how data was being processed at each iteration. This diagram 
+also helped in planning our caching and partitioning strategies. 
+
+See p4_bfs.png
+
+####################
+
+Discussion re: graph diameter
+
+For the next part of the problem, we were told to assume that the diameter
+of the graph is 10. By definition, the diameter of a graph is "the largest
+number of vertices which must be traversed in order to travel from one vertex
+to another when paths which backtrack, detour, or loop are excluded from
+consideration" (see e.g. http://mathworld.wolfram.com/GraphDiameter.html.)
+
+This means that if we are doing a breadth first search, and we are 
+expanding our search frontier by one hop in each iterations, we must finish
+in nine iterations (if we do not count starting with the root node
+as an iteration) if the diameter of the graph. In general, if the diameter
+is known to be no more than ten, we can expect to complete in less than
+ten iterations. 
+
+####################
+
+Discussion re: searching nodes in Marvel Universe
+
+For "CAPTAIN AMERICA", we counted 6403 touched nodes (including the node
+for CAPTAIN AMERICA himself).
+
+For "MISS THING/MARY", we counted 7 touched nodes (including the node
+for MISS THING/MARY herself).
+
+For "ORWELL", we counted 9 touched nodes (including the node for ORWELL
+himself).
+
+Note in all cases that if there were any variations in the name in the
+original data set other than the exact string given, they might not be
+counted. Further cleaning of the data may result in different counts.
+
+If a character does not have a defined distance at the end of the search
+(assuming we initialized all nodes to be searched with an undefined distance),
+that means they could not be reached during the search and are out of
+the network or neighbourhood of the character being searched. They may be
+an "island" or in a separate connected graph, disconnected from the 
+connected graph containing the character being searched.
+
+####################
+
+Appendix: Output
+
+CAPTAIN AMERICA
+stage:  1
+queue length:  1
+unsearched graph size:  334200
+stage:  2
+queue length:  1903
+unsearched graph size:  332297
+stage:  3
+queue length:  4461
+unsearched graph size:  98293
+stage:  4
+queue length:  38
+unsearched graph size:  261
+unvisited:  36
+visited:    6403
+
+
+MISS THING/MARY
+stage:  1
+queue length:  1
+unsearched graph size:  334200
+stage:  2
+queue length:  6
+unsearched graph size:  334194
+unvisited:  6432
+visited:    7
+
+
+ORWELL
+stage:  1
+queue length:  1
+unsearched graph size:  334200
+stage:  2
+queue length:  8
+unsearched graph size:  334192
+unvisited:  6430
+visited:    9

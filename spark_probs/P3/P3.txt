@@ -1,0 +1,1 @@
+(u'aelst', 11, [u'salet', u'steal', u'stela', u'tesla', u'stale', u'taels', u'slate', u'teals', u'tales', u'least', u'leats'])

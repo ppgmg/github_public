@@ -119,3 +119,9 @@ short presentation for a seminar class describing my modifications
 to construct a data analysis for further analysis in a final project
 *(for Harvard STAT139: Statistical Sleuthing using Linear Models,
   November 2015)*.
+
+### spark_probs
+(**Python, Spark**) Solutions to some interesting homework exercises
+utilizing Apache Spark
+*(for Harvard CS205: Computing Foundations for Computational Science, 
+  October 2015)*.

@@ -1,0 +1,180 @@
+P5.txt
+
+####################
+#
+# Submission by Kendrick Lo (Harvard ID: 70984997) for
+# CS 205 - Computing Foundations for Computational Science (Prof. R. Jones)
+# 
+# Homework 1 - Problem 5
+# Discussion of Results
+#
+####################
+
+####################
+
+Files included in this submission:
+
+P5.txt - this file
+P5_bfs.py - code implementing search for shortest path on directed graph
+P5_connected_components.py - code to determine number of connected components
+
+Other files:
+
+P5_bfs.png - diagram showing data flow via RDDs for search algorithm
+
+####################
+
+Discussion re: graph representation
+
+Please see explanation in P4.txt regarding choice of graph representation.
+
+
+####################
+
+Discussion re: approach in spark coding and optimization
+
+To assist us in determining how to structure our code to pass information
+via spark RDDs, we found it useful to draw out a diagram of our structure 
+that showed how data was being processed at each iteration. This diagram 
+also helped in planning our caching and partitioning strategies. 
+
+See p5_bfs.png
+
+####################
+
+Discussion re: results of shortest path search
+
+A shortest path found from "Kevin_Bacon" to "Harvard_University" was through
+the "College_Bowl" page.
+
+    [u'Kevin_Bacon', u'College_Bowl', u'Harvard_University']
+
+A shortest path found from "Harvard_University" to "Kevin_Bacon" was through
+the "1998" and "1958" pages.
+
+    [u'Harvard_University', u'1998', u'1958', u'Kevin_Bacon']
+
+Out of interest, we tried a few paths involving Barack Obama, Mother Teresa,
+Angelina Jolie, and Adam and Eve(!) Still only a few degrees of separation:
+
+    [u'Barack_Obama', u'John_F._Kennedy', u'Mother_Teresa']
+
+    [u'Angelina_Jolie', u"Grendel's_mother", u'Adam_and_Eve']
+
+    [u'Barack_Obama', u'United_Church_of_Christ', 
+      u'Abilene_Christian_University', u'Adam_and_Eve']
+
+####################
+
+Discussion re: results of connected components search
+
+We chose to modify our BFS code from Problem 4, by repeatedly performing the
+search from each node in the graph; starting from an arbitrary node, 
+we search for all connected components, and then we repeat this for the next
+node that has not yet been touched. The flow is similar to that seen in
+P4_bfs.png for Problem 4, except that rather than storing distances from the
+source node in the `distance` RDD, we now store the cluster number to which
+the nodes belong. We used the hash of the lowest node ID in the cluster as
+the cluster number.
+
+Note we implemented a flag called `links_symmetric` that can be set to
+identify whether each link in the graph is to be taken as symmetric 
+(links_symmetric = True) or whether two nodes A and B are only considered 
+symmetric if there is both a link from A to B and a link from B to A given. 
+
+We were able to run this code succesfully on both the Marvel data and
+a subset of the Wiki data, returning expected results. Unfortunately, when
+we executed this program on EWS, although the program did not crash, it was
+taking too long and the job had to be terminated. I did not want to run up
+a huge bill on my credit card, and there was no way of keeping track of the
+current bill while doing the job. However, I have submitted the current
+version as I know it works on smaller data sets.
+
+Addendum: It appears that one of the first iterations will take the longest
+because the connected graph is quite large. So in theory, if I waited long
+enough I may get an answer output. That said...
+
+I am cognizant of the fact that repeatedly running BFS is not the most
+efficient solution when the edge list is large. I read through some articles
+that suggested quicker algorithms by remapping the graph into a different
+format before performing the search, and this may be investigated in
+the future.
+
+I did attempt an alternate solution based on a Piazza hint, where I took all
+edges, flipped the node numbers, combined them into one set, and then reduced
+the values to identify the vertex with the minimum ID, storing it with the
+vertex ID. I then went through an iterative process to either keep that
+value, or see if the value was associated with an even smaller value, and to
+keep that one if it was smaller. This seemed to work for some simple graphs,
+but not for more complex ones like the Marvel set -- the algorithm 
+underestimates the maximum number of nodes. I put in a snippet of the
+code that I used in the Appendix below, in case I decide to try to debug this
+(for fun) at some later date, or if you have some feedback.
+
+####################
+
+Appendix: Output for shortest path
+
+Finding path from: Kevin_Bacon to Harvard_University
+stage:  1
+queue length:  1
+unsearched graph size:  130160392
+stage:  2
+queue length:  225
+unsearched graph size:  130160167
+['Kevin_Bacon', u'College_Bowl', 'Harvard_University']
+
+
+Finding path from: Harvard_University to Kevin_Bacon
+stage:  1
+queue length:  1
+unsearched graph size:  130160392
+stage:  2
+queue length:  667
+unsearched graph size:  130159725
+stage:  3
+queue length:  65900
+unsearched graph size:  130013787
+['Harvard_University', u'1998', u'1958', 'Kevin_Bacon']
+
+####################
+
+Appendix: Output of connected components _on Marvel graph_
+
+(symmetric links)
+total clusters:  22
+biggest cluster (clusterID, size):  (0, 6403)
+
+####################
+
+Appendix: Code for connected components that did not work on larger graph
+
+[...]
+def get_value(i):
+    print lt.value[i]
+    return lt.value[i]
+
+cluster_table = char_table.map(lambda(x, y): (x, float("inf")))
+edge_table_rev = edge_table.map(lambda (x, y): (y, x))
+cluster = edge_table + edge_table_rev
+cluster = cluster.reduceByKey(min, numPartitions=numParts).cache()
+
+while True:
+    lt = sc.broadcast(cluster.collectAsMap())
+    new_cluster = cluster.mapValues(lambda y: y if y<lt.value[y] else lt.value[y]).sortByKey().cache()
+    if (cluster.subtract(new_cluster).count()==0):
+        break
+    else:
+        cluster = new_cluster
+
+new_cluster = cluster_table.leftOuterJoin(new_cluster)
+new_cluster = new_cluster.map(lambda (x, (i, j)): (x, x) if j==None else (x, j)).sortByKey().cache()
+by_cluster = new_cluster.map(lambda (x, y): (y, 1)).reduceByKey(lambda x, y: x + y)
+
+max_cluster_info = by_cluster.takeOrdered(5, lambda kv: -kv[1])
+print max_cluster_info[0]
+
+Output: [(1, 1844), (8, 1314), (5, 595), (3, 308), (13, 248)]
+
+
+

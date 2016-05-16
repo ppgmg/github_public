@@ -1,0 +1,179 @@
+P2.txt
+
+####################
+#
+# Submission by Kendrick Lo (Harvard ID: 70984997) for
+# CS 205 - Computing Foundations for Computational Science (Prof. R. Jones)
+# 
+# Homework 1 - Problem 2
+# Discussion of Results
+#
+####################
+
+####################
+
+Files included in this submission:
+
+P2.txt - this file
+P2a.py - script for plotting Mandelbrot function with default partitioning
+P2b.py - script for plotting Mandelbrot function using pyspark `repartition`
+P2a_hist.png - histogram of per-partition work P2a.py
+P2b_hist.png - histogram of per-partition work P2b.py
+
+Other files:
+
+P2_consol.py - script for plotting Mandelbrot function using 4 different
+               partitioning schemes
+P2c_hist.png - histogram of per-partition work (alternating column blocks)
+P2d_hist.png - histogram of per-partition work (python randomization)
+
+####################
+
+Discussion re: default partitioning
+
+First, we were asked to implement the Mandelbrot computation using the
+default partitioning scheme (script: P2a.py). After the image was computed,
+we explored the results in the Spark UI, and it became clear that there were
+many partitions where processing involved very little work, while others
+took a much longer time relatively speaking.
+
+Here were some summary metrics for the time it took for each "task" (one per
+partition) to be completed:
+
+    Summary Metrics for 100 Completed Tasks
+    Metric
+    ------ 
+    Min               0.2 s
+    25th percentile   0.2 s
+    Median            0.3 s
+    75th percentile   0.4 s
+    Max Duration      9   s
+
+The median value was only 0.3 seconds while some tasks took as long as 
+9 seconds (i.e. 30x as long). A closer look at the histogram (P2a_hist.png)
+was even more revealing: the distribution is clearly unimodal.
+
+Also, there were a lot of small values, and some VERY large values, some as
+many as 2 x 1e7 units(!): some tasks took long to complete... and those that
+took long, took really long!
+
+####################
+
+Exploring alternative partitioning strategies: column-wise
+
+We then took some to explore how Spark appeared to partition the data we
+gave it (see e.g. code in P2_consol.py). It appeared that Spark was just
+dividing arrays of given co-ordinates in consecutive groups 
+(e.g. for x-coordinates, the first partition takes the first 200 elements,
+the second partition takes the second group of 200 elements, and so on.)
+Then when it builds the grid, the coordinates are built up in 200 x 200
+square pixel blocks. From the picture of the Mandelbrot image, it became
+clear that many of the partitions did not invole a lot of work because very
+few blocks overlap the center of the plot -- this was the most intense
+part of the image and would involve the greatest number of calculations.
+
+So we set out to find a different strategy to spread out the work, and that
+would take into account the fact that "locations close to one another tend to
+have similar final iteration counts". We thought about strategies that could
+somehow assign pixels located near the center to a wider variety of 
+partitions.
+
+One possible strategy we explored was to modify the code so that the 
+partitions would group pixels either row-wise or column-wise: e.g. the first
+column would be assigned to the first partition, the second column to the
+second partition, and so on, to be repeated for every 100 blocks (think 
+"striped" pattern). This strategy was inspired by: 
+http://www.matthiasbook.de/papers/parallelfractals/agglomeration.html. 
+A histogram was plotted (see P2c_hist.py). 
+The result: no partition involved more than 0.1 x 1e7 iterations -- 
+an improvement with respect to this maximum value compared to the previous
+part; however, the load still did not seem to be very evenly balanced. 
+
+####################
+
+Randomization using `repartition()`
+
+We then thought about how we could best minimize the possibilty that the
+same partition would be assigned to draw points on the same part of the 
+graph. Knowing the specific shape of this plot, we could hard-code an
+assignment of partitions to the particular high intensity areas, but 
+that would make our code not very portable if the image (e.g. initial
+parameters) were to change even slightly.
+
+However, we thought if we randomly assigned pixels to partitions, this
+might address the issue as it would then be unlikely (although still 
+possible) for two adjacent pixels to be assigned to the same partition.
+
+In the Spark Programming Guide 
+(https://spark.apache.org/docs/latest/programming-guide.html),
+it appeared we could achieve this using the `repartition` transformation:
+
+    repartition(numPartitions): 
+    Reshuffle the data in the RDD randomly to create either more or fewer
+    partitions and balance it across them. This always shuffles all data 
+    over the network.
+
+We repartitioned the grid (see code in P2b.py) and plotted the histogram
+(see P2b_hist.png). It is clear that the work is more balanced compared
+to the other strategies: the number of iterations performed falls into a
+tighter range (to about .06 x 1e7), with at most 5 partitions represented
+by each bin (which is kept constant over all histograms). The maximum time
+to complete the drawing task also decreased (down from 9 seconds):
+
+    Summary Metrics for 100 Completed Tasks
+    Metric
+    ------ 
+    Min               0.3 s
+    25th percentile   0.6 s
+    Median            1   s
+    75th percentile   2   s
+    Max Duration      3   s
+
+    Shuffle Read Size / Records
+    21.7 KB / 62
+    22.4 KB / 64
+    22.6 KB / 64
+    22.9 KB / 65
+    23.6 KB / 66
+
+The work is better balanced, but at a cost of performing a shuffle.
+If the amount of data to be shuffled as a result of the repartitioning was
+high, and depending on how distibuted the data is across workers, the time
+to perform the repartitioning could negate the improvements offered by
+balancing the load. This suggest there is a tradeoff between shuffle costs,
+and the costs associated with waiting for a few tasks to complete while
+many workers remain idle.
+
+####################
+
+Randomization using python
+
+Despite the improvement to load balancing observed in the last section, 
+the distribution still did not seem as spread out as we would have
+expected, and considered whether or not the "random" repartitioning 
+promised by the Spark transformation was truly random.
+
+As an experiment, we decided to randomize the grid by performing a
+`shuffle` of the grid (using the random package) before storing the
+data in an RDD. Obviously, there is also a tradeoff if we do this, as
+it can take a while to perform the shuffle, especially if the grid is
+large. But the results were pretty interesting:
+
+    Summary Metrics for 100 Completed Tasks
+    Metric
+    ------ 
+    Min               1   s
+    25th percentile   1   s
+    Median            1   s
+    75th percentile   1   s
+    Max Duration      1   s
+
+The histogram we drew (see P2d_hist.png) also showed that all tasks now 
+involved a much narrower range of iterations -- all bars lie tightly
+around .02 x 1e7 iteration counts, with between 1-4 partitions
+associated with each bin. This strategy, although not strictly a 
+pure Spark solution, seems to balance the load the best. Further
+investigation might involve comparing the cost of shuffling the
+array values using `random` with the cost of the shuffle triggered
+by use of `repartition()`, as well as the technique that Spark uses
+to perform its purportedly "random" partitioning. 
