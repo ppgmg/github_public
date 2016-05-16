@@ -110,7 +110,7 @@ for the [project](https://github.com/dominedo/spark-n-spell)
 ### STEMwomen
 (**Python, scikitlearn, Tableau**) We analyzed census microdata to investigate
 gender imbalance in college STEM studies, through the application of analytical
-and modeling techniques. We also created a
+and modeling techniques. Illustrations created using Tableau. We also created a
 [video presentation and website](https://stemstudy.wordpress.com)
 for the [project](https://github.com/ppgmg/stem-study)
 *(for Harvard AC209: Data Science, December 2015)*.
@@ -133,3 +133,7 @@ to construct a data analysis for further analysis in a final project
 utilizing Apache Spark
 *(for Harvard CS205: Computing Foundations for Computational Science,
   October 2015)*.
+
+### datasci_probs
+(**Python, scikitlearn**) Summary of Data Science homework exercises completed
+*(for Harvard AC209: Data Science, October-November 2015)*.
