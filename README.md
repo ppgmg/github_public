@@ -99,13 +99,20 @@ applying stochastic methods to a variety of applications
   Optimization, January-April 2016)*.
 
 ### spell
-(**Python, Spark**) I implemented a Python port of the
+(**Python, Spark**) I implemented a Python port of Wolf Garbe's
 ["Symmetric Delete" algorithm](https://github.com/wolfgarbe/symspell), and
-a modified version in Apache Spark, to correct the spelling of text.
+an adaptation using Apache Spark, to correct the spelling of text.
 We also created a [video presentation and website](http://spark-n-spell.com)
 for the [project](https://github.com/dominedo/spark-n-spell)
 *(for Harvard CS205: Computing Foundations for Computational Science,
   December 2015)*.
+
+### particles
+(**Python, Cython**) As a short exercise in employing parallelism techniques,
+I modified code for a physics simulator and animation system, and wrote a
+short presentation for a seminar class describing my modifications
+*(for Harvard CS205: Computing Foundations for Computational Science,
+  November 2015)*.
 
 ### terror
 (**Python, pandas**) Using Pandas to clean country data from multiple sources

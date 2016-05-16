@@ -1,0 +1,293 @@
+P5.txt
+
+######################
+#
+# Submission by Kendrick Lo (Harvard ID: 70984997) for
+# CS 205 - Computing Foundations for Computational Science (Prof. R. Jones)
+# 
+# Homework 2 - Problem 5
+#
+# I did not colloborate with anyone to complete this problem.
+#
+# Documentation:
+# CS 205 Piazza Posts
+# https://en.wikipedia.org/wiki/Z-order_curve
+# http://code.activestate.com/recipes/
+#      577558-interleave-bits-aka-morton-ize-aka-z-order-curve/
+# http://matplotlib.org/examples/api/barchart_demo.html
+#
+######################
+
+1. General Considerations
+
+We modified the driver to run 100 iterations of the simulation; in each
+iteration the quantity "simulation frames per second (FPS)" is computed 
+by the original code. The higher the number of the simulation frames, 
+the better the performance of the algorithm (more data has been processed
+within an interval of simulated time). Accordingly, over 100 iterations 
+we can compute various measures of this performance including a range of 
+simulation frames per second (minimum and maximum FPS), and an average.
+
+We noted that in most of these simulations, a low FPS was attained
+on the very first iteration; this is not too surprising as the code
+forces balls to be grouped tightly together in the establishment of the
+center "hole". This grouping means that there will initially be more
+collisions to detect and process (until the balls get more spread out),
+which in turn means that it takes longer to process a frame (and thus
+fewer frames can be processed in a given interval). Put another way, we
+can expect FPS to drop anytime there is a relatively large number of
+collisions to process. Accordingly, an average FPS over N simulations
+may be a better comparator of performance.
+
+2. Multithreading
+
+First, we establish a baseline for our performance comparisons. 
+
+We let the baseline be based on performance with 1 thread (serial
+performance). 
+
+	100 iterations in simulation
+	minimum simulation frames per second: 12.4755103316
+	maximum simulation frames per second: 15.5955128038
+	mean simulation frames per second: 14.0089425324
+
+On average, 14 FPS are processed using the serial algorithm. 
+We refer to this as our "baseline".
+
+Next, we investigated the performance with 4 threads in a 
+multithreading algorithm:
+
+	100 iterations in simulation
+	minimum simulation frames per second: 12.4180377133
+	maximum simulation frames per second: 25.9921669724
+	mean simulation frames per second: 20.0636069583
+
+With mulithreading, we now achieve improved performance of
+20 FPS. This represents about a 43% increase over the baseline.
+
+Since updating the positions of all the balls in the simulation seems
+to be a highly parallellizable process (we give each thread a group of
+balls to process), we do expect a material performance improvement
+when additional threads are employed. However, because certain threads
+will take longer to complete the processing of their group of balls 
+than other threads (become there will be more collisions to process
+in certain groups), and each thread must wait for all other threads to
+deal with all their collisions before the program can move on in the 
+update function, we are unable to achieve a full 4x increase in 
+performance even though we are employing 4x the number of threads
+compared to the single thread case.
+
+Moreover, we note that we have chosen a chunksize of 1/4x the number 
+of objects. This may not be an ideal setting for the parameters as
+it assumes that the work for each chunk is roughly equal, which
+may not be the case. We experimented with this setting, and noted
+that with a chunksize of 1, for example, we were able to obtain
+a maximum FPS of almost 30 FPS, or about a 100% increase in
+performance over the baseline. 
+
+In any event, for comparison purposes with other algorithms below,
+we will use the original chunksize of 1/4x the number of objects.
+
+3. Spatial Decomposition (Gridding)
+
+We store an index for each object in a special Grid data structure
+(intuitively this might represent a grid drawn atop of the frame
+where balls are displayed), which keeps track of the location of 
+objects as the simulation progresses. The position array also
+keeps track of ball locations, but it does so by storing coordinates
+indexed by ball identifier; conversely, ball identifiers are stored
+in elements of the two-dimensional grid array indexed by its
+positional coordinates:
+
+    Given ball index, find position? -> Use positions array
+    Given position, find ball (if any?) -> Use Grid array
+
+The algorithm previously implemented to detect collisions between
+objects is O(N^2) because it loops through each object to obtain
+the position of a first object for comparison, and then through
+all objects with higher indices sequentially, to obtain the position 
+of a second object for comparison (i.e. loop over i: 1..n and then 
+j: i+1..n). This means that when the number of objects is large, 
+performance may slow down because of this "loop within a loop".
+
+However, with the Grid we only need to check grid squares that neighbor
+the square in which an i-th ball is located, cutting down the size
+of the second loop from n-(i+1) to 24 (by checking two neighbouring
+grid squares in each direction). Since the second "loop" is now a 
+fixed size, it runs in constant time, not O(N) time. This results in 
+an overall O(N) algorithm to detect collisions among N objects.
+
+Here is the performance of the gridded version with 1 thread:
+
+	100 iterations in simulation
+	minimum simulation frames per second: 565.979462129
+	maximum simulation frames per second: 746.742629255
+	mean simulation frames per second: 663.482977379
+
+Here is the performance of the gridded version with 4 threads:
+
+	100 iterations in simulation
+	minimum simulation frames per second: 402.924870484
+	maximum simulation frames per second: 1461.7209997
+	mean simulation frames per second: 1164.40417612
+
+It is clear that the gridding approach increases performance
+substantially, even without parallelism. The single-thread
+gridded version runs at an average rate of 663 FPS, 47 times faster
+than the baseline and 33 times faster than the multithreaded
+version with no gridding.
+
+The gridded version using four threads outperforms all of
+the previously considered algorithms, running at an average rate
+of 1164 FPS. This is 1.8x faster than the single-thread gridded
+version, 58x faster than the multithreaded version with no gridding,
+and 83x faster than the baseline.
+
+The performance increase comes from not having to cycle through O(n) 
+items for every i-th ball when detecting collisions. The performance
+savings by instituting this approach increases as N increases. 
+There will be a cost to updating the indices of the Grid, but these
+updates are an O(n) process.
+
+And again, while we do expect a performance improvement when more 
+threads are employed, because certain threads will take longer to 
+complete the processing of collisions involving their group of balls 
+than others, and each thread must wait for all others to complete this
+processing before moving on in the update function, we are unable to 
+achieve a full 4x increase in performance even though we are employing
+4x the number of threads.
+
+4. Spatially Coherent Sorting
+
+In this part, we added a sorting mechanism to sort balls by location
+when a new frame is about to be drawn. It initially seemed unclear
+how simply moving co-ordinate pairs to be associated with different
+indices in the positions and velocities array would have an effect
+on performance of the update function. In fact, the overall time to
+perform the simulations may increase, because we are performing an
+additional sort, and this time is not taken into account when computing
+performance statistics (perhaps it should). 
+
+With respect to the ordering, we used the location of the balls as
+identified in the Grid to come up with a re-indexing of positions
+and velocities within their respective arrays. By doing this, balls
+that are "closer" to each other based on their coordinates (which
+also means their indices are near each other in the Grid) get
+assigned new indices so that there is a correspondence between
+the indices of the positions array and the position coordinates
+themselves. Since balls close to each other will have closer index
+values in the positions (and velocities) array after the sort,
+presumably data for these balls can be accessed more quickly in memory.
+
+We initially considered a naive sorting algorithm where we sort
+elements first by x-coordinate, and then second by y-coordinate
+(or vice-versa). This would have a certain "grouping" effect, but it
+does not tend to be as balanced or perform as well as some other
+ordering choices.
+
+The Morton ordering is described at https://en.wikipedia.org/wiki/
+Z-order_curve. Essentially we can convert two-dimensional coordinates
+into a set of single values. The single values are obtained by 
+interleaving bits of the binary representation of (x, y) coordinates
+and form a sequence such that close values in the sequence are generally
+associated with close coordinates in 2-D space.
+
+Here is the performance of the gridded version after sorting using the
+Morton ordering, with one thread and four threads, respectively:
+
+	100 iterations in simulation
+	minimum simulation frames per second: 618.420422951
+	maximum simulation frames per second: 904.88846823
+	mean simulation frames per second: 811.285629963
+
+	100 iterations in simulation
+	minimum simulation frames per second: 590.584839375
+	maximum simulation frames per second: 1780.74355019
+	mean simulation frames per second: 1622.68461351
+
+The single-thread version runs at an average rate of 811 FPS, a slight
+improvement over the gridded version without sorting (663 FPS). However,
+the four-threaded version runs at an average rate of 1622 FPS -- almost
+a 40% improvement over the four-threaded gridded version without sorting. 
+
+5. Locking
+
+Finally, we added locks to prevent simultaneous updates to object
+velocities when they collide, with each object having its own lock.
+Here is the performance of the one-thread and four-thread versions,
+respectively, with locking (in addition to gridding and sorting):
+
+	100 iterations in simulation
+	minimum simulation frames per second: 558.589825186
+	maximum simulation frames per second: 907.750260059
+	mean simulation frames per second: 810.69797762
+
+	100 iterations in simulation
+	minimum simulation frames per second: 668.504469124
+	maximum simulation frames per second: 1901.98999532
+	mean simulation frames per second: 1669.06680921
+
+There was no significant change when we instituted locking for the
+one thread case (there is only one thread after all), and a slight
+improvement for the four thread version.
+
+The final combination of improvements resulted in a 58x improved 
+performance over the baseline for the one-threaded case, and
+an impressive 119x improvement in performance over the baseline for
+the four-threaded case.
+
+That said, this last result was somewhat surprising, as we had 
+expected, at best, a slight decrease in performance after introduction 
+of the locks. This could well be the case still, with the observed 
+differences being close enough that it might well be due to random
+fluctuations from simulation. However, upon repeating the simulations
+multiple times, the performance improvement for the four-threaded case
+(albeit only a minor one) was seen to be consistent. 
+
+Why is this the case?
+
+We have a theory: without the locking structures in place, when two
+balls are determined to collide it is possible for the velocity of one 
+ball to reverse, but not the other. When two balls are overlapping and 
+moving toward each other, the velocities of both balls are _supposed_ 
+to reverse. However, if the velocity of one ball does not reverse,
+two colliding balls that should start moving apart may actually continue 
+to move together in the same direction. 
+
+In particular, when the comparison that checks whether both balls 
+are moving in opposite direction succeeds, the locks we have implemented
+ensure that this remains the case until the velocities of both balls are
+changed. Without the locks, however, it is possible for one of the balls 
+to change direction (because of an action performed by a different thread)
+AFTER the check was made but BEFORE the velocities of BOTH balls have 
+had a chance to change. The result -- both balls that were supposed to be
+sent off in different directions end up moving in the SAME direction.
+
+If this happens, then balls will continue travelling together in an
+overlapped state (when they would not be, had they been moving apart).
+This could continue for multiple iterations. Processing collisions is
+expensive; thus, if balls travel together in an overlapping state, the
+function that deals with collisions will be executed more often than 
+it should (particularly if the balls are "clumped" together, and the
+benefit of trying to add an impulse to separate balls is not achieved.)
+
+In summary, by ensuring that velocities for each ball are reversed when 
+they ought to be (as guaranteed by using the lock functions), the 
+frequency at which balls might continue to travel in an overlapping 
+pattern can be minimized, the collision detection algorithm is called 
+less often, and we would thus observe an increase in performance. 
+Determining if this phenomenon is actually occuring might be an 
+appropriate subject for a future investigation.
+
+6. Conclusion
+
+The performance results are summarized in the attached chart: P5.png.
+
+Almost all of the incremental adjustments seemed to result in some
+improvement in performance; however, by far the most significant one
+appeared to come from the introduction of the gridding algorithm, which
+involved converting an O(N^2) collision detection algorithm to O(N). 
+Since this procedure is always repeated, the savings are large as N
+gets large. This suggests to us that design a faster algorithm may be
+much more worthwhile than simply taking a slow-running algorithm and 
+adding parallelism.
