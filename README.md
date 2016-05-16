@@ -137,3 +137,6 @@ utilizing Apache Spark
 ### datasci_probs
 (**Python, scikitlearn**) Summary of Data Science homework exercises completed
 *(for Harvard AC209: Data Science, October-November 2015)*.
+
+### coursera
+(**R**) Select projects from Coursera's Data Science specialization *(2014)*

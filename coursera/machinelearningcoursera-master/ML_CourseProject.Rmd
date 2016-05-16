@@ -1,0 +1,229 @@
+Predicting Quality of Unilateral Dumbbell Biceps Curl Performance Using On-Body Sensor Data
+===========================================================================================
+Assignment for: Practical Machine Learning
+
+Submitted by: ppgmg
+
+Human activity recognition research employing wearable technology has traditionally focused on discriminating between different activities, i.e. to predict "which" activity was performed at a specific point in time, rather than investigating *how well* the activity was performed.
+
+In an experiment performed by Ugilino et al. (see http://groupware.les.inf.puc-rio.br/har), six participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E).
+
+The goal of this project was to predict the manner in which a given subject performed the exercise. This is the "classe" variable in the training set. 
+
+We are provided with the following:
+
+- Training Set (pml-training.csv): This file contains a data frame with 19622 rows and 160 columns.
+- Test data (pml-testing.csv): This file contains a data frame with 20 rows and 160 columns.
+
+## Notes on input data and R packages used
+
+The data used to generate this report were downloaded from 
+https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv and
+https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv, on `r date()`.
+
+The following packages were used: **caret**, **ggplot2**
+
+```{r echo=TRUE, message=FALSE}
+## may need to install caret and related packages if not already done
+## install.packages("caret", dependencies=c("Depends","Suggests"))
+
+library(caret)
+library(ggplot2)
+```
+
+# Data Processing
+
+## Loading the data
+
+I downloaded the datasets into memory. The data from the two files were loaded into the objects *rawtrain* and *rawtest* respectively. (Note that we revised the input parameters for the read command based on initial observations of the data, and in particular, we identified what strings appeared to represent invalid entries -- see discussion under "Investigating and Cleaning the data").
+
+```{r loadfile, echo=TRUE, cache=TRUE}
+## download training set
+temp <- tempfile()
+download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", temp, method="curl")
+rawtrain <- read.csv(temp, header=TRUE, stringsAsFactors=FALSE, na.strings=c('NA', ' ', '#DIV/0!'))
+unlink(temp)
+
+## preview training set
+## head(rawtrain)
+## tail(rawtrain)
+## summary(rawtrain)
+
+## download test set
+temp <- tempfile()
+download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", temp, method="curl")
+rawtest <- read.csv(temp, header=TRUE, stringsAsFactors=FALSE, na.strings=c('NA', ' ', '#DIV/0!'))
+unlink(temp)
+
+## preview test set
+## head(rawtest)
+## tail(rawtest)
+## summary(rawtest)
+```
+
+## Investigating and Cleaning the data
+
+First, note that since we do not want to use the test data set to train our algorithm, we did not examine the *test* data in much detail; we simply checked that the features in the training and test data sets were the same (e.g. in the event there were columns in one set but not the other for some reason).
+
+``` {r echo=TRUE, results="hide"}
+## check that column names in each set match
+colnames(rawtrain)==colnames(rawtest)
+```
+
+It was discovered that only the last column name differed; in the training set this was the "classe" variable, which we are trying to predict. In the test set, this column appears to have been replaced with values from 1 to 20 representing test case indices.
+
+We also noticed that each of the test cases was associated with a window number; this appears to be a record identifier. We do not want to use such data in our training set for obvious reasons - we do not want our algorithm to predict what exercise is being done using data other than the sensor data; recorded supplementary data identifying the subject, the particular time the test was being performed, and so on should not be used to build the prediction models.
+
+In view of the above, we proceeded to clean the data by modifying the data sets to retain only the columns appearing to be associated with sensor data. This entailed deleting the first seven columns of the data sets. We also converted the *classe* variable to a factor variable.
+
+``` {r echo=TRUE}
+## retain all columns in the data sets except the first seven columns
+rawtrain2 <- rawtrain[,8:(ncol(rawtrain))]
+rawtest2 <- rawtest[,8:(ncol(rawtest))]
+
+## convert classe variable to factor
+rawtrain2$classe <- as.factor(rawtrain2$classe)
+```
+
+Next, we noticed that some of the columns had NA values, blank values, and other values that did not appear to represent a valid data entry. Interestingly, there were numerous columns appearing to have 19216 (out of 19622) of such invalid values, while many other columns did not appear to have any such invalid values at all. 
+
+Since we do not have more information about the data that might allow us to develop a strategy for imputing missing values, we proceeded to consider simply removing features containing "a lot" of invalid values. (Note that we modified the above code for reading the files to identify all "NA", " ", and "#DIV/0!" entries as NA values when reading the data).
+
+More specifically, we decided to remove *features containing more than half of its observations as NA values* from the data set. If there were fewer NA values scattered throughout the data set, it might make more sense to simply delete individual rows/observations (as opposed to columns/features as we have done here). 
+
+``` {r echo=TRUE}
+## remove columns from training set containing more than 1/2 observations as NA values
+## this ratio can be adjusted by substituting a different value for the threshold
+threshold <- 0.5
+NAcols <- colSums(is.na(rawtrain2))>(threshold*nrow(rawtrain))
+rawtrain3 <- rawtrain2[,!NAcols]
+rawtest3 <- rawtest2[,!NAcols]  ## remove same columns in test set
+
+## view summaries of data sets
+## summary(rawtrain3)
+## summary(rawtest3)
+```
+
+It appears that removing the columns with more than 1/2 NA observations had the effect of clearing up all records; that is, from the summaries of the data sets, it is not immediately apparent that any missing/invalid entries remained. There were 52 columns remaining, containing data for **52** corresponding potential predictor variables.
+
+## Pre-Processing and Plotting Predictors
+
+At this stage, we further examined the data of the training set by performing a few plots, to see if there are any outliers, interesting shapes in the data (which might call for data transformations), or possible patterns that might aid in a selection of predictors, for example. However, due to time and report space constraints, we did not do this for every potential predictor, although this could be performed in a follow-up investigation. 
+
+Here is an example of some plots that could be made for the *roll_arm* predictor variable, by way of example.
+
+```{r echo=TRUE}
+p1 <- qplot(classe, roll_arm, data=rawtrain3, fill=classe, geom=c("boxplot"))
+p1
+
+p2 <- qplot(classe, roll_arm, data=rawtrain3, fill=classe, geom=c("boxplot","jitter"))
+p2
+
+p3 <- qplot(roll_arm,colour=classe,data=rawtrain3,geom="density")
+p3
+```
+
+We also did a check for near zero co-variates -- predictors with little variability that could be removed for consideration -- and did not find any to exclude.
+
+```{r echo=TRUE}
+## check for covariates with very little variability that will likely not be good predictors
+nsv <- nearZeroVar(rawtrain3,saveMetrics=TRUE)
+## nsv
+```
+
+## Training the model
+
+We partitioned the original training set up into new training and test sets. This will allow us to obtain an unbiased estimate the out-of-sample error when we use the new test data to test our finally chosen model just one time.
+
+```{r datasplit, echo=TRUE, message=FALSE}
+set.seed(123)
+
+inTrain <- createDataPartition(y=rawtrain3$classe, p=0.75, list=FALSE)
+
+training <- rawtrain3[inTrain,]
+dim(training)
+
+testing <-  rawtrain3[-inTrain,]
+dim(testing)
+```
+
+There are a number of models of varying complexity that we can choose to employ, and the *train* function in R can be used. Since I am still learning about which models are more appropriate for use in certain situations than in others, I started with the model that was utilized in the caret tutorial by Max Kuhn for the purpose of this introductory assignment. Accordingly, we first tuned a partial least squares disciminant analysis (PLSDA) model. We selected a number of customizations as a learning exercise.
+
+```{r model1, echo=TRUE, message=FALSE}
+
+## modify the resampling method (default is simple bootstrap) to three repeats of 10-fold cross-validation
+ctrl <- trainControl(method="repeatedcv", repeats=3)
+
+modelFit <- train(classe ~ ., 
+                  data=training, 
+                  method="pls", 
+                  ## tune over more values of each tuning parameter
+                  tuneLength=15,
+                  ## identify modified resampling method
+                  trControl=ctrl,
+                  ## center and scale predictors for training set and future samples
+                  preProc=c("center", "scale"))
+
+modelFit
+```
+
+To estimate the out-of-sample error rate for this model, we would apply the model to the test data set aside from the training set.
+
+```{r predict, echo=TRUE}
+
+## prediction using test data from training set
+PLClasses <- predict(modelFit, newdata = testing)
+
+## get statistics
+confusionMatrix(data=PLClasses, testing$classe)
+
+## table of predicted values versus actual data
+table(PLClasses,testing$classe)
+
+## estimate of out-of-sample error
+error <- 1-confusionMatrix(data=PLClasses, testing$classe)$overall['Accuracy']
+names(error) <- "error rate"
+error
+
+```
+
+We could estimate the out-of-sample error rate as 1-Accuracy (the statistic arising from applying the test data that was a subset of the original training data), which is an unbiased estimate since we used cross-validation to build our model, using only part of the training data and not this test data. The estimate of the out-of-sample error is about 39%, and the overall accuracy rate is about 61%, which is OK but not great.
+
+By way of comparison, we then used a *random forest* classifier algorithm, which is computationally intensive but tends to result in a high degree of accuracy. According to the description of random forests (link: https://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm), it appears that there is "no need for cross-validation or a separate test set to get an unbiased estimate of the test set error [as it] is estimated internally..."
+
+```{r model2, echo=TRUE, message=FALSE, cache=TRUE}
+
+## modelFit2 <- train(classe ~ ., data=training, method="rf", trControl=ctrl, preProc=c("center", "scale"))
+modelFit2 <- train(classe ~ ., data=rawtrain3, method="rf")
+modelFit2
+modelFit2$finalModel
+
+```
+
+The error rate appeared to be quite low, so we decided to go with this model to do our predictions for this assignment.
+
+For a random forest model, we use the "out-of-bag (oob) error rate" estimate as the unbiased estimate of the test set error. We estimated the out-of-sample error rate to be about **0.4 %**.
+
+As a final part of this assignment, we generated the files necessary to predict the provided 20 test cases.
+
+```{r finaltest, echo=TRUE, message=FALSE}
+
+## script provided in assignment instructions
+pml_write_files = function(x){
+  n = length(x)
+  for(i in 1:n){
+    filename = paste0("problem_id_",i,".txt")
+    write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+  }
+}
+
+## generated prediction values on original test set
+answers = predict(modelFit2, newdata = rawtest3)
+answers
+
+## write text files for submission
+pml_write_files(answers)
+
+```
+
+
