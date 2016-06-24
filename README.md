@@ -1,6 +1,13 @@
 # Project Repository
+
 This repository contains code and documentation for projects created primarily
 in the course of my studies.
+
+## Data Engineering
+
+[Go to repo](https://github.com/ppgmg/insight_hll) For the Insight Data Engineering Fellow program, I implemented a framework for testing the accuracy and efficiency of the HyperLogLog algorithm on real-time, streaming data. This algorithm allows for extremely quick computations of unique items in a data stream. I designed and built a pipeline in which simulated data was ingested using Apache Kafka and processed in real-time using Spark Streaming (program in Scala) atop a Hadoop/HDFS framework hosted on Amazon Web Services (AWS). 
+
+## Data Science
 
 ### iSAX
 (**Python**) I implemented an algorithm and accompanying tree structure to facilitate
