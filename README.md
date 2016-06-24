@@ -5,11 +5,9 @@ in the course of my studies.
 
 ## Data Engineering / Algorithms
 
-### Probabilistic Methods
+### Probabilistic Methods [repo](https://github.com/ppgmg/insight_hll)
 
-[Go to repo](https://github.com/ppgmg/insight_hll) 
-
-(**Kafka, Spark Streaming**) For the Insight Data Engineering Fellow program, I implemented a framework for testing the accuracy and efficiency of the HyperLogLog algorithm on real-time, streaming data. This algorithm allows for extremely quick computations of unique items in a data stream. I designed and built a pipeline in which simulated data was ingested using Apache Kafka and processed in real-time using Spark Streaming (program in Scala) atop a Hadoop/HDFS framework hosted on Amazon Web Services (AWS). 
+(**Kafka, Spark Streaming**) For the Insight Data Engineering Fellow program, I implemented a framework for testing the accuracy and efficiency of the HyperLogLog algorithm on real-time, streaming data. This algorithm allows for extremely quick computations of unique items in a data stream. I designed and built a pipeline in which simulated data was ingested using Apache Kafka and processed in real-time using Spark Streaming (program in Scala) atop a Hadoop/HDFS framework hosted on Amazon Web Services (AWS). [Go to repo](https://github.com/ppgmg/insight_hll)
 
 ### iSAX
 (**Python**) I implemented an algorithm and accompanying tree structure to facilitate
@@ -18,6 +16,16 @@ prices), for integration into a
 [database](https://github.com/Mynti207/cs207project)
 *(for Harvard CS207: Systems
 Development for Computational Science, May 2016)*.
+
+### tweets
+(**Python**) I wrote code that calculates the average degree of a vertex
+in a Twitter hashtag graph for the last 60 seconds, and updates this each time
+a new tweet appears. The average degree is thus calculated over a 60-second
+sliding window. This was written in response to a
+[coding challenge](https://github.com/GeneDer/coding-challenge)
+as part of an application to the
+[Insight Data Engineering fellowship](http://insightdataengineering.com)
+program *(April 2016)*.
 
 ### bloom
 (**C**) As a short exercise in exploring hashing methodologies, I
@@ -71,16 +79,6 @@ implemented Latent Dirichlet Allocation to determine the topic of a set of
 documents based on analysis of their words. The dataset included over
 5 million document-word count pairings.
 *(for Harvard CS181: Machine Learning, April 2016)*.
-
-### tweets
-(**Python**) I wrote code that calculates the average degree of a vertex
-in a Twitter hashtag graph for the last 60 seconds, and updates this each time
-a new tweet appears. The average degree is thus calculated over a 60-second
-sliding window. This was written in response to a
-[coding challenge](https://github.com/GeneDer/coding-challenge)
-as part of an application to the
-[Insight Data Engineering fellowship](http://insightdataengineering.com)
-program *(April 2016)*.
 
 ### music
 (**Python, scikitlearn**) We used machine learning methods to predict the
