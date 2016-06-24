@@ -3,13 +3,13 @@
 This repository contains code and documentation for projects created primarily
 in the course of my studies.
 
-## Data Engineering
+## Data Engineering / Algorithms
+
+### Probabilistic Methods
 
 [Go to repo](https://github.com/ppgmg/insight_hll) 
 
-For the Insight Data Engineering Fellow program, I implemented a framework for testing the accuracy and efficiency of the HyperLogLog algorithm on real-time, streaming data. This algorithm allows for extremely quick computations of unique items in a data stream. I designed and built a pipeline in which simulated data was ingested using Apache Kafka and processed in real-time using Spark Streaming (program in Scala) atop a Hadoop/HDFS framework hosted on Amazon Web Services (AWS). 
-
-## Data Science
+(**Kafka, Spark Streaming**) For the Insight Data Engineering Fellow program, I implemented a framework for testing the accuracy and efficiency of the HyperLogLog algorithm on real-time, streaming data. This algorithm allows for extremely quick computations of unique items in a data stream. I designed and built a pipeline in which simulated data was ingested using Apache Kafka and processed in real-time using Spark Streaming (program in Scala) atop a Hadoop/HDFS framework hosted on Amazon Web Services (AWS). 
 
 ### iSAX
 (**Python**) I implemented an algorithm and accompanying tree structure to facilitate
@@ -18,6 +18,28 @@ prices), for integration into a
 [database](https://github.com/Mynti207/cs207project)
 *(for Harvard CS207: Systems
 Development for Computational Science, May 2016)*.
+
+### bloom
+(**C**) As a short exercise in exploring hashing methodologies, I
+implemented a Bloom filter in C *(for Harvard CS207: Systems
+Development for Computational Science, February 2016)*.
+
+### spell
+(**Python, Spark**) I implemented a Python port of Wolf Garbe's
+["Symmetric Delete" algorithm](https://github.com/wolfgarbe/symspell), and
+an adaptation using Apache Spark, to correct the spelling of text.
+We also created a [video presentation and website](http://spark-n-spell.com)
+for the [project](https://github.com/dominedo/spark-n-spell)
+*(for Harvard CS205: Computing Foundations for Computational Science,
+  December 2015)*.
+
+### spark_probs
+(**Python, Spark**) Solutions to some interesting homework exercises
+utilizing Apache Spark
+*(for Harvard CS205: Computing Foundations for Computational Science,
+  October 2015)*.  
+
+## Data Science / Machine Learning / Stochastic Methods
 
 ### mastermind
 (**Python**) I implemented several algorithms for solving high-dimensional versions
@@ -96,25 +118,11 @@ implemented the K-means algorithm from scratch to group similar images of
 handwritten digits from the MNIST dataset
 *(for Harvard CS181: Machine Learning, February 2016)*.
 
-### bloom
-(**C**) As a short exercise in exploring hashing methodologies, I
-implemented a Bloom filter in C *(for Harvard CS207: Systems
-Development for Computational Science, February 2016)*.
-
 ### montecarlo
 (**Python, PyMC**) Solutions to some interesting homework exercises
 applying stochastic methods to a variety of applications
 *(for Harvard AM207: Stochastic Methods for Data Analysis, Inference, and
   Optimization, January-April 2016)*.
-
-### spell
-(**Python, Spark**) I implemented a Python port of Wolf Garbe's
-["Symmetric Delete" algorithm](https://github.com/wolfgarbe/symspell), and
-an adaptation using Apache Spark, to correct the spelling of text.
-We also created a [video presentation and website](http://spark-n-spell.com)
-for the [project](https://github.com/dominedo/spark-n-spell)
-*(for Harvard CS205: Computing Foundations for Computational Science,
-  December 2015)*.
 
 ### STEMwomen
 (**Python, scikitlearn, Tableau**) We analyzed census microdata to investigate
@@ -136,12 +144,6 @@ short presentation for a seminar class describing my modifications
 to construct a data analysis for further analysis in a final project
 *(for Harvard STAT139: Statistical Sleuthing using Linear Models,
   November 2015)*.
-
-### spark_probs
-(**Python, Spark**) Solutions to some interesting homework exercises
-utilizing Apache Spark
-*(for Harvard CS205: Computing Foundations for Computational Science,
-  October 2015)*.
 
 ### datasci_probs
 (**Python, scikitlearn**) Summary of Data Science homework exercises completed
