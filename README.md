@@ -5,7 +5,7 @@ in the course of my studies.
 
 ## Data Engineering / Algorithms
 
-### Probabilistic Methods [repo](https://github.com/ppgmg/insight_hll)
+### [Probabilistic Methods](https://github.com/ppgmg/insight_hll)
 
 (**Kafka, Spark Streaming**) For the Insight Data Engineering Fellow program, I implemented a framework for testing the accuracy and efficiency of the HyperLogLog algorithm on real-time, streaming data. This algorithm allows for extremely quick computations of unique items in a data stream. I designed and built a pipeline in which simulated data was ingested using Apache Kafka and processed in real-time using Spark Streaming (program in Scala) atop a Hadoop/HDFS framework hosted on Amazon Web Services (AWS). [Go to repo](https://github.com/ppgmg/insight_hll)
 
