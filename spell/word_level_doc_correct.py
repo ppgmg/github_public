@@ -18,9 +18,24 @@ value of LOG from True to False to print to standard output.
 
 ################
 
-v 4.0 last revised 27 Nov 2015
-For further info, check out spark-n-spell.com
-or e-mail mail@k-lo.ca
+v 4.1 last revised 29 Apr 2017
+Please note this code is no longer being maintained.
+
+License:
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License, 
+version 3.0 (LGPL-3.0) as published by the Free Software Foundation.
+http://www.opensource.org/licenses/LGPL-3.0
+
+This program is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+See the GNU General Public License for more details.
+
+Please acknowledge Wolf Garbe, as the original creator of SymSpell,
+(see note below) in any use.
+
+################
 
 This program is a Spark (PySpark) version of a spellchecker based on SymSpell, 
 a Symmetric Delete spelling correction algorithm developed by Wolf Garbe 
@@ -48,8 +63,6 @@ IMPORTANT NOTE:  The current version will generate internally all possible
 correction for each word in the test document before choosing the best one.
 This allows us to compare the performance of earlier versions of the code.
 This means that this code will run slowly for any moderately-sized test file.
-For faster Spark versions, please consider running the context-based versions
-at spark-n-spell.com
 
 ################
 
