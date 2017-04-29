@@ -9,9 +9,22 @@ Enter word to correct when prompted.
 
 ################
 
-v 1.1 last revised 28 Nov 2015
-For further info, check out spark-n-spell.com
-or e-mail mail@k-lo.ca
+v 1.3 last revised 29 Apr 2017
+Please note: This code is no longer being actively maintained.
+
+License:
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License, 
+version 3.0 (LGPL-3.0) as published by the Free Software Foundation.
+http://www.opensource.org/licenses/LGPL-3.0
+
+This program is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+See the GNU General Public License for more details.
+
+Please acknowledge Wolf Garbe, as the original creator of SymSpell,
+(see note below) in any use.
 
 ################
 
@@ -43,10 +56,18 @@ Demerau-Levenshtein distance between two strings, we have largely followed
 the structure and spirit of the original SymSpell algorithm and have not 
 introduced any major optimizations or improvements.
 
-Changes in this version (1.1):
+################
+
+Changes from version (1.0):
 We implement allowing for less verbose options: e.g. when only a single
 recommended correction is required, the search may terminate early, thereby
 enhancing performance. 
+
+Changes from version (1.1):
+Removed unnecessary condition in create_dictionary_entry
+
+Changes from version (1.2):
+Update maintenance status
 
 #################
 
@@ -132,9 +153,7 @@ def create_dictionary_entry(w):
         for item in deletes:
             if item in dictionary:
                 # add (correct) word to delete's suggested correction list 
-                # if not already there
-                if item not in dictionary[item][0]:
-                    dictionary[item][0].append(w)
+                dictionary[item][0].append(w)
             else:
                 # note frequency of word in corpus is not incremented
                 dictionary[item] = ([w], 0)  
