@@ -7,7 +7,7 @@ You should have spark-1.5.0 or above installed, and be able to execute
 spark-submit from your current directory.
 
 to run:
-spark-submit word_correct_spark.py -w "<word to correct>" 
+spark-submit symspell_spark.py -w "<word to correct>" 
 
 You can also add a -d file.txt to specify a different dictionary file.
 To use defaults, make sure the dictionary "big.txt" is in the current 
@@ -18,7 +18,24 @@ value of LOG from True to False to print to standard output.
 
 ################
 
-v 3.0 last revised 26 Nov 2015
+v 3.1 last revised 29 Apr 2017
+Please note this code is no longer being maintained.
+
+License:
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License, 
+version 3.0 (LGPL-3.0) as published by the Free Software Foundation.
+http://www.opensource.org/licenses/LGPL-3.0
+
+This program is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+See the GNU General Public License for more details.
+
+Please acknowledge Wolf Garbe, as the original creator of SymSpell,
+(see note below) in any use.
+ 
+################
 
 This program is a Spark (PySpark) version of a spellchecker based on SymSpell, 
 a Symmetric Delete spelling correction algorithm developed by Wolf Garbe 
@@ -46,7 +63,6 @@ Future improvements may entail allowing for less verbose options,
 including the output of a single recommended correction. Note also that we
 have generally kept to the form of the original program, and have not
 introduced any major optimizations or structural changes in this PySpark port.
-
 
 ################
 
